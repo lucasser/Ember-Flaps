@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1a2d26">
+  <title>relay — Motor control</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inside">
+    <div class="brand-section">
+      <div class="brand-line"><div class="brand-icon" aria-hidden="true">⏻</div><span class="brand">relay</span><span class="slash">/</span><span class="console">Device console</span></div>
+      <div class="crumb">Workspace <span>/</span> <strong>ESP32-01</strong></div>
+    </div>
+    <div class="header-right"><span class="overview">Overview</span><span class="header-divider"></span><span class="connection-label"><span class="status-dot" id="header-dot"></span><span id="header-connection">Checking connection</span></span></div>
+  </div>
+</header>
+<main class="container">
+  <div class="page-title"><div><h1>Motor control</h1><p>Your connection and motor power. One clear view.</p></div><span class="last-updated"><span class="status-dot" id="updated-dot"></span><span id="updated">Checking status…</span></span></div>
+  <div class="demo-banner" id="demo-banner" hidden>DEMO MODE — Buttons simulate motor commands. No ESP32 is connected.</div>
+  <div class="main-grid">
+    <section class="card motor-card">
+      <div class="card-header"><h2><span class="mini-icon">☷</span> Motor power</h2><span class="monospace subdued">MOTOR / 01</span></div>
+      <div class="motor-display"><div class="motor-copy"><div class="eyebrow"><span class="little-dot"></span> SYSTEM STATE</div><div class="big-status" id="motor-state">UNKNOWN</div><p id="motor-description">Checking motor state</p></div><div class="power-art" aria-hidden="true"><div class="power-ring"><div class="power-center"><span>⏻</span></div></div></div></div>
+      <div class="motor-controls"><div class="motor-instructions"><h3 id="action-title">Checking device</h3><p id="action-detail">Connecting to controller…</p></div><div class="motor-button-area"><button id="motor-button" class="motor-button" disabled><span>⏻</span><span id="motor-button-label">Checking status</span></button><small id="motor-button-help">Controls ESP32-01 when connected</small></div></div>
+    </section>
+    <section class="card connection-card">
+      <div class="card-header"><h2>ESP32 connection</h2><span class="chip-icon" aria-hidden="true">▦</span></div>
+      <div class="connection-body"><div class="connection-head"><span class="wifi-icon">⌁</span><span id="connection-state">Checking…</span></div><p id="connection-description">Waiting for device status.</p><div class="info-lines"><div><span>Device</span><strong class="monospace">ESP32-01</strong></div><div><span>Last response</span><strong id="last-response">—</strong></div><div><span>Motor power</span><strong class="monospace" id="connection-motor">UNKNOWN</strong></div></div></div>
+      <div class="connection-note"><span>ⓘ</span><div><strong>Connected doesn’t mean running</strong><p>The ESP32 connection stays active when motor power is off.</p></div></div>
+    </section>
+  </div>
+  <section class="card activity-card"><div class="activity-heading"><h2><span class="mini-icon">◴</span> Recent activity</h2><span>This session · Today</span></div><div id="activity-list" class="activity-list"><div class="empty-activity">No activity recorded yet.</div></div></section>
+  <p class="footer-caution">Prototype interface. Motor state reflects the controller's reported output, not proof of physical deployment. Do not use as a safety-critical control system.</p>
+</main>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
