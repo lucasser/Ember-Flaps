@@ -34,6 +34,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("boot");
   if (!LittleFS.begin(true)) {
     Serial.println("An Error has occurred while mounting LittleFS");
     return;
@@ -41,9 +42,10 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.printf("WiFi Failed!\n");
+    Serial.println("WiFi Failed!\n");
     return;
   }
+  Serial.println(WiFi.localIP());
 
   // attach AsyncWebSocket
   ws.onEvent(onEvent);
@@ -64,7 +66,7 @@ void setup() {
 
   // send a file when /index is requested
   server.on("/index", HTTP_ALL, [](AsyncWebServerRequest *request) {
-    request->send(LittleFS, "/index.htm");
+    request->send(LittleFS, "/index.html");
   });
 
   // attach filesystem root at URL /fs
