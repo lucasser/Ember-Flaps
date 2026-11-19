@@ -1,6 +1,4 @@
-// Ember front end matching src/API.md (2026-11-19).
-// IMPORTANT: API.md does not specify the EventSource URL. Confirm this
-// placeholder with the firmware teammate before deploying.
+
 const EVENTS_URL = '/api/events';
 const $ = (id) => document.getElementById(id);
 
