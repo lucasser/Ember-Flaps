@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#1a2d26">
   <title>relay — Wildfire protection</title>
   <link rel="stylesheet" href="./fs/style.css">
+  <!-- Map assets require browser internet access unless hosted locally. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/komoot/leaflet.photon@master/leaflet.photon.css">
 </head>
 <body>
   <header class="site-header">
@@ -84,7 +87,11 @@
 
         <form id="coord_input" class="coordinate-form">
           <h3>Your location</h3>
-          <p>Enter coordinates in decimal degrees.</p>
+          <p>Search for your property on the map, or enter coordinates manually.</p>
+          <div class="map-wrapper">
+            <div id="property-map" aria-label="Map for selecting your property location"></div>
+            <p id="map-feedback" class="map-feedback" role="status">Loading map and address search…</p>
+          </div>
           <div class="coordinate-inputs">
             <div class="coordinate-field">
               <label for="coord-latitude">Latitude</label>
@@ -114,6 +121,8 @@
 
     <p class="footer-caution">Prototype interface. Flap state reflects the last reported command, not verified physical position. Wildfire distance depends on available fire data and may not reflect immediate conditions. Do not rely on this dashboard for emergency decisions.</p>
   </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/komoot/leaflet.photon@master/leaflet.photon.js"></script>
   <script src="./fs/script.js"></script>
 </body>
 </html>
