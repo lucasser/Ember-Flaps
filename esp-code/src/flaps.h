@@ -7,4 +7,8 @@ class flaps {
 
 	public:
 		void init(int dir, int step) { motor.begin(dir, step); }
+
+		bool active() { return false; }
+
+		bool activate(bool open = false) { return true; }
 };

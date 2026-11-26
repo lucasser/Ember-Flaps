@@ -115,6 +115,13 @@ button, input { font: inherit; }
   outline: none; font-size: 15px;
 }
 .coordinate-field input:focus { border-color: #168557; box-shadow: 0 0 0 3px #1685571d; }
+.distance-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; color: #53665a; }
+.distance-field input {
+  display: block; width: 200%; min-width: 0; border: 1px solid #d1ded5;
+  background: #fff; color: #23382b; border-radius: 8px; padding: 12px;
+  outline: none; font-size: 15px;
+}
+.distance-field input:focus { border-color: #168557; box-shadow: 0 0 0 3px #1685571d; }
 .coordinate-button {
   margin-top: 16px; background: #1b3028; color: #fff; border: 0;
   border-radius: 9px; padding: 13px 18px; width: 100%; font-weight: 650;

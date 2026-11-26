@@ -3,7 +3,9 @@
 ## Server -> Client
 
 S->C comms will be done using [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+
 Will receive text
+
 Each of these event will be sent on initial connection with current info
 
 - flap status

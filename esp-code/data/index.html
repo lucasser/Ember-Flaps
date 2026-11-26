@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1a2d26">
-  <title>relay — Wildfire protection</title>
-  <link rel="stylesheet" href="./fs/style.css">
+  <title>Anti-fire Flap Control</title>
+  <link rel="stylesheet" href="./style.css">
   <!-- Map assets require browser internet access unless hosted locally. -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/komoot/leaflet.photon@master/leaflet.photon.css">
@@ -16,13 +16,9 @@
       <div class="brand-section">
         <div class="brand-line">
           <div class="brand-icon" aria-hidden="true">⏻</div>
-          <span class="brand">relay</span>
-          <span class="slash">/</span>
           <span class="console">Wildfire protection</span>
         </div>
-        <div class="crumb">Workspace <span>/</span> <strong>Home dashboard</strong></div>
       </div>
-      <div class="header-right"><span class="overview">Overview</span></div>
     </div>
   </header>
 
@@ -39,7 +35,7 @@
       <section class="card motor-card" aria-labelledby="flap-heading">
         <div class="card-header">
           <h2 id="flap-heading"><span class="mini-icon" aria-hidden="true">☷</span> Flap control</h2>
-          <span class="monospace subdued">FLAPS / 01</span>
+          <span class="monospace subdued">FLAPS</span>
         </div>
 
         <div class="motor-display">
@@ -73,7 +69,6 @@
       <section class="card fire-card" aria-labelledby="fire-heading">
         <div class="card-header">
           <h2 id="fire-heading"><span class="mini-icon" aria-hidden="true">◎</span> Nearest wildfire</h2>
-          <span class="monospace subdued">FIRE / 01</span>
         </div>
 
         <div class="fire-distance-panel">
@@ -101,9 +96,13 @@
               <label for="coord-longitude">Longitude</label>
               <input id="coord-longitude" name="longitude" type="number" inputmode="decimal" step="any" min="-180" max="180" placeholder="-105.22" required>
             </div>
+			<div class="distance-field">
+              <label for="activate-dist">Trigger Distance</label>
+              <input id="activate-dist" name="activate-dist" type="number" inputmode="decimal" step="any" min="0" max="20" placeholder="1" required>
+			</div>
           </div>
           <button id="coord-submit" class="coordinate-button" type="submit">Update location</button>
-          <p id="coord-feedback" class="coord-feedback" role="status" aria-live="polite">No location submitted in this session.</p>
+          <p id="coord-feedback" class="coord-feedback" role="status" aria-live="polite"></p>
         </form>
         <div class="fire-note">ⓘ <span>Fire reports may be delayed or incomplete. This is not an evacuation alert.</span></div>
       </section>
@@ -118,11 +117,9 @@
         <div class="empty-activity">No activity recorded yet.</div>
       </div>
     </section>
-
-    <p class="footer-caution">Prototype interface. Flap state reflects the last reported command, not verified physical position. Wildfire distance depends on available fire data and may not reflect immediate conditions. Do not rely on this dashboard for emergency decisions.</p>
-  </main>
+	</main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/komoot/leaflet.photon@master/leaflet.photon.js"></script>
-  <script src="./fs/script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>

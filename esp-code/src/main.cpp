@@ -1,94 +1,121 @@
-#include <ArduinoJson.h>
-#include <ESPAsyncWebServer.h>	// Webserver
-#include <WiFi.h>
-#include "AsyncJson.h"
-#include "LittleFS.h"  // Filesystem
-
-#include "SECRETS.h"
+#include <ArduinoNvs.h>
+#include <CSV_Parser.h>
 #include "flaps.h"
+#include "website.h"
 
 #include "FireAPI.h"
 
+ArduinoNvs SettingsNVS;
+
 flaps flaps;
 
-AsyncWebServer server(80);
-AsyncEventSource events("/events");	 // event source (Server-Sent events)
+FireAPI fireAPI({0, 0, 0, 10, API_KEY});
 
-static void onRequest(AsyncWebServerRequest* request) {
-	// Handle Unknown Request
-	request->send(404);
+String getData(String event) {
+	if (event == "settings") {
+		JsonDocument json;
+		json["min_distance"]		   = SettingsNVS.getFloat("trigDist");
+		json["house_location"]["lat"]  = SettingsNVS.getFloat("lat");
+		json["house_location"]["long"] = SettingsNVS.getFloat("lon");
+
+		String data;
+		serializeJson(json, data);
+		return data;
+	} else if (event == "data") {
+		String data;
+		serializeJson(fireAPI.getData(), data);
+		return data;
+	} else if (event == "status") {
+		return (flaps.active()) ? "closed" : "open";
+	} else if (event == "logs") {
+		CSV_Parser parser("ssss");
+		File logs = LittleFS.open("/logs.csv", "r");
+
+		while (logs.available()) { parser << logs.readString(); }
+		logs.close();
+
+		char** date	   = (char**)parser["date"];
+		char** time	   = (char**)parser["time"];
+		char** action  = (char**)parser["action"];
+		char** trigger = (char**)parser["trigger"];
+
+		JsonDocument json;
+		JsonDocument entry;
+		JsonArray logArray = json["actions"].to<JsonArray>();
+
+		for (int i = 0; i < parser.getRowsCount(); i++) {
+			entry["date"]	 = date[i];
+			entry["time"]	 = time[i];
+			entry["action"]	 = action[i];
+			entry["trigger"] = trigger[i];
+
+			logArray.add(entry);
+		}
+
+		String data;
+		serializeJson(json, data);
+		return data;
+	} else {
+		throw "Invalid event";
+	}
 }
 
-static void onBody(AsyncWebServerRequest* request,
-				   uint8_t* data,
-				   size_t len,
-				   size_t index,
-				   size_t total) {
-	// Handle body
+int processWebRequest(String event, JsonVariant& data) {
+	if (event == "settings") {
+		if (!data["house_location"]["lat"].is<float>()
+			|| !data["house_location"]["long"].is<float>()
+			|| !data["min_distance"].is<float>()) {
+			return 400;
+		}
+
+		SettingsNVS.setFloat("lat", data["house_location"]["lat"]);
+		SettingsNVS.setFloat("lon", data["house_location"]["long"]);
+		SettingsNVS.setFloat("trigDist", data["min_distance"]);
+		fireAPI.setCoords(SettingsNVS.getFloat("lat"),
+						  SettingsNVS.getFloat("lon"));
+		fireAPI.setTriggerDistance(SettingsNVS.getFloat("trigDist"));
+		eventsObject.queueUp("settings");
+		return 201;
+	} else if (event == "control") {
+		if (!data["activate"].is<bool>()) { return 400; }
+
+		flaps.activate(data["activate"]);
+		eventsObject.queueUp("status");
+		return 201;
+	} else {
+		return 404;
+	}
 }
 
-void WifiInit() {
+void initFS() {
 	if (!LittleFS.begin(true)) {
 		Serial.println("An Error has occurred while mounting LittleFS");
 		return;
 	}
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
-	if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-		Serial.println("WiFi Failed!\n");
-		return;
+	if (!LittleFS.exists("/logs.csv")) {
+		File logs = LittleFS.open("/logs.csv", "w");
+		logs.println("date,time,action,trigger");
+		logs.close();
 	}
-	Serial.println(WiFi.localIP());
-
-	// attach AsyncEventSource
-	server.addHandler(&events);
-
-	// send a file when /index is requested
-	server.on("/index", HTTP_ALL, [](AsyncWebServerRequest* request) {
-		request->send(LittleFS, "/index.html");
-	});
-
-	server.on("/api/settings", HTTP_POST,
-			  [](AsyncWebServerRequest* request, JsonVariant& json) {
-				  Serial.printf("Body request : ");
-				  serializeJson(json, Serial);
-				  Serial.println();
-				  AsyncJsonResponse* response = new AsyncJsonResponse();
-				  JsonObject root = response->getRoot().to<JsonObject>();
-				  root["hello"]	  = json.as<JsonObject>()["name"];
-				  response->setLength();
-				  request->send(response);
-			  });
-
-	server.on("/api/control", HTTP_POST,
-			  [](AsyncWebServerRequest* request, JsonVariant& json) {
-				  Serial.printf("Body request : ");
-				  serializeJson(json, Serial);
-				  Serial.println();
-				  AsyncJsonResponse* response = new AsyncJsonResponse();
-				  JsonObject root = response->getRoot().to<JsonObject>();
-				  root["hello"]	  = json.as<JsonObject>()["name"];
-				  response->setLength();
-				  request->send(response);
-			  });
-
-	// attach filesystem root at URL /
-	server.serveStatic("/", LittleFS, "/");
-
-	// Catch-All Handlers
-	// Any request that can not find a Handler that canHandle it
-	// ends in the callbacks below.
-	server.onNotFound(onRequest);
-	server.onRequestBody(onBody);
-
-	server.begin();
+	SettingsNVS.begin("settings");
 }
 
 void setup() {
 	Serial.begin(115200);
 	Serial.println("boot");
-	WifiInit();
-	flaps.init(12, 13);
+
+	initFS();
+
+	WifiInit(getData, processWebRequest);
+	delay(1000);
+
+	fireAPI.setCoords(SettingsNVS.getFloat("lat"), SettingsNVS.getFloat("lon"));
+	fireAPI.setTriggerDistance(SettingsNVS.getFloat("trigDist"));
+
+	// flaps.init(12, 13);
 }
 
-void loop() {}
+void loop() {
+	eventsObject.tick();
+	fireAPI.tick();
+}
